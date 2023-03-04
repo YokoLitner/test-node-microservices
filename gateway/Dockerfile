@@ -1,12 +1,12 @@
 FROM node:18-alpine
 
-WORKDIR /app/
+WORKDIR /gateway/
 
-COPY /gateway/package*.json /gateway/yarn.lock /gateway/tsconfig.build.json /gateway/tsconfig.json /app/
-
-COPY /gateway/src /app/src
+COPY /gateway/package*.json /gateway/yarn.lock /gateway/tsconfig.build.json /gateway/tsconfig.json ./
 
 RUN yarn && yarn build
+
+COPY /gateway/src/ ./src/
 
 EXPOSE 4000
 

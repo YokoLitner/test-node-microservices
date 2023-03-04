@@ -1,5 +1,23 @@
 version: '3'
 services:
+  nats: 
+    container_name: nats
+    command: -c ./server.conf --name nats_1 -p 4222
+    volumes:
+      - ./server.conf:/server.conf
+    image: nats:alpine
+    networks:
+      - main
+    ports:
+      - '4222:4222'
+
+  maildev:
+    container_name: maildev
+    image: maildev/maildev
+    ports:
+      - "8025:1080"
+      - "25:1025"
+
   database:
     image: postgres:15.2-alpine
     container_name: database
@@ -41,9 +59,10 @@ services:
     ports:
       - "${CORE_PORT}:3000"
     volumes:
-      - ${PWD:-./core}:/app/core
+      - ./core:/core/
     networks:
       - postgres
+      - main
     command: sh -c "yarn && yarn build && yarn start:dev"
 
   gateway:
@@ -54,9 +73,13 @@ services:
     ports:
       - "${GATEWAY_PORT}:4000"
     volumes:
-      - ${PWD:-./gateway}:/app/gateway
+      - ./gateway:/gateway/
+    networks:
+      - main
     command: sh -c "yarn && yarn build && yarn start:dev"
 
 networks:
   postgres:
+    driver: bridge
+  main: 
     driver: bridge
